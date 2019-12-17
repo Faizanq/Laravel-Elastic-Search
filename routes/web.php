@@ -16,3 +16,10 @@ Route::prefix('elasticsearch')->group(function(){
 	Route::get('test',['uses'=>'ClientController@elasticsearchtest']);
 
 });
+
+
+Route::prefix('elastica')->group(function(){
+
+	Route::get('test',['uses'=>'ClientController@elasticatest']);
+
+});

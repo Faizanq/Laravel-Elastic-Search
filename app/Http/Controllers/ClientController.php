@@ -15,6 +15,10 @@ class ClientController extends Controller
     //Elastica Client
     protected $elastica;
 
+    //Make elastica index vaiable
+    protected $elasticaIndex;
+
+
     public function __construct(){
 
     	$this->elasticsearch = ClientBuilder::create()->build();
@@ -27,8 +31,11 @@ class ClientController extends Controller
     	];
 
     	$this->elastica = new ElasticaClient($elastica_config);
+
+    	$this->elasticaIndex = $this->elastica->getIndex('pets');
     }
 
+    //test ElasticSearch Client
     public function elasticSearchTest(){
     	
     	dump($this->elasticsearch);
@@ -44,6 +51,30 @@ class ClientController extends Controller
     	];
 
     	$response = $this->elasticsearch->get($params);
+    	dump($response);
+    }
+
+    //test the Elastica Client
+    public function ElasticaTest(){
+
+    	//print the elastica Object
+    	dump($this->elastica);
+
+    	//print the elasticIndex
+    	dump($this->elasticaIndex);
+
+    	echo "\n\n Get type and mapping\n";
+
+    	$dogType = $this->elasticaIndex->getType('dog');
+
+    	dump($dogType->getMapping());
+
+    	//Retreive the document that we inserted
+
+    	echo "\n\n Retrive the document\n";
+
+    	$response = $dogType->getDocument('1');
+
     	dump($response);
     }
 }
