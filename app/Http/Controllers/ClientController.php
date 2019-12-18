@@ -231,4 +231,81 @@ class ClientController extends Controller
 
     }
 
+    public function ElasticSearchQuries(){
+
+    	$params = [
+    		'index'=>'pets',
+    		'type'=>'birds',
+    		'body'=>[
+    			'query'=>[
+    				'match'=>[
+    					'name'=>'Paroat'
+    				]
+    			]
+    		]
+    	];
+
+    	$response = $this->elasticsearch->search($params);
+    	dump($response);
+
+
+    	$params = [
+    		'index'=>'pets',
+    		'type'=>'birds',
+    		'size'=>15,
+    		'body'=>[
+    			'query'=>[
+    				'match'=>[
+    					'about'=>'funny'
+    				]
+    			]
+    		]
+    	];
+
+    	$response = $this->elasticsearch->search($params);
+    	dump($response);
+
+    	//Boolean Query
+
+    	$params = [
+    		'index'=>'pets',
+    		'type'=>'birds',
+    		'size'=>15,
+    		'body'=>[
+    			'query'=>[
+	    			'bool'=>[
+	    				'must'=>[
+	    					'match'=>[
+	    						'name'=>'Paroat'
+	    					]
+	    				],
+	    				'should'=>[
+	    					'term'=>[
+	    						'braveBird'=>true
+	    					],
+	    					'term'=>[
+	    						'gender'=>'male'
+	    					]
+	    				],
+	    				'filter'=>[
+	    					'range'=>[
+	    						'registered'=>[
+	    							'gte'=>'2015-12-12'
+	    						]
+	    					]
+	    				]
+	    			]
+	    		]
+    		]
+    	];
+
+    	$response = $this->elasticsearch->search($params);
+    	dump($response);
+
+    }
+
+    public function ElasticaQuries(){
+
+    }
+
 }

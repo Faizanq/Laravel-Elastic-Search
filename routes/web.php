@@ -15,6 +15,7 @@ Route::prefix('elasticsearch')->group(function(){
 
 	Route::get('test',['uses'=>'ClientController@elasticsearchtest']);
 	Route::get('data',['uses'=>'ClientController@elasticsearchdata']);
+	Route::get('quries',['uses'=>'ClientController@ElasticSearchQuries']);
 
 });
 
@@ -23,5 +24,7 @@ Route::prefix('elastica')->group(function(){
 
 	Route::get('test',['uses'=>'ClientController@elasticatest']);
 	Route::get('data',['uses'=>'ClientController@elasticadata']);
+	Route::get('quries',['uses'=>'ClientController@ElasticaQuries']);
+
 
 });
