@@ -5,17 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Elasticsearch\ClientBuilder;
 use Elastica\Client as ElasticaClient;
+use Elastica;
+use Faker\Factory as Faker;
 
 class ClientController extends Controller
 {
     
-    //Elastic Search Client
+    //Elasticsearch Client
     protected $elasticsearch;
 
     //Elastica Client
     protected $elastica;
 
-    //Make elastica index vaiable
+    //Elastica index
     protected $elasticaIndex;
 
 
@@ -77,4 +79,156 @@ class ClientController extends Controller
 
     	dump($response);
     }
+
+    //Data structure of Elasticsearch client
+    public function ElasticSearchData(){
+
+    	$params = [
+    		'index'=>'pets',
+    		'type'=>'birds',
+    		'body'=>[
+    			'_source'=>[
+    				'enabled'=>true,
+    			],
+    			'properties'=>[
+    				'name'			=>array('type'=>'string'),
+    				'age' 			=>array('type'=>'long'),
+    				'gender'		=>array('type'=>'string'),
+    				'color'			=>array('type'=>'string'),
+    				'braveBird'		=>array('type'=>'boolean'),
+    				'homeTown'		=>array('type'=>'string'),
+    				'about'			=>array('type'=>'text'),
+    				'registered'	=>array('type'=>'date'),
+    			]
+    		]
+    	];
+
+    	//Define the mapping
+    	// $response = $this->elasticsearch->indices()->putMapping($params);
+
+    	// dump($response);
+
+    	$params = [
+    		'index'=>'pets',
+    		'type' =>'birds'
+    	];
+    	//Print the mapping
+    	$mapping = $this->elasticsearch->indices()->getMapping($params);
+
+    	dump($mapping);
+
+    	// $params = [
+    	// 	'index'=>'pets',
+    	// 	'type'=>'birds',
+    	// 	'id'=>'1',
+    	// 	'body'=>[
+    	// 		    'name'		=>'Paroat',
+    	// 			'age' 		=>2,
+    	// 			'gender'	=>'male',
+    	// 			'color'		=>'green',
+    	// 			'braveBird'	=>true,
+    	// 			'homeTown'	=>'India',
+    	// 			'about'		=>'Very funny and brave birds and inteligence',
+    	// 			'registered'=>date('Y-m-d'),
+    	// 	]
+    	// ];
+
+    	// $response = $this->elasticsearch->index($params);
+    	// dump($response);
+
+    	//Lets use Faker for genarting fake data
+    	$faker = Faker::create();
+
+    	$params = [];
+
+    	for ($i=0; $i < 100; $i++) { 
+    		$params['body'][] = [
+    			'index'=>[
+	    				'_index'=>'pets',
+	    				'_type'=>' birds'
+	    			]	
+	    		];
+
+	    	$gender = $faker->randomElement(['male','female']);
+	    	$age = $faker->numberBetween(1,15);
+
+	    	$params['body'][] = [
+	    		'name'		=>$faker->name($gender),
+				'age' 		=>$age,
+				'gender'	=>$gender,
+				'color'		=>$faker->safeColorName(),
+				'braveBird'	=>$faker->boolean,
+				'homeTown'	=>"{$faker->city}, {$faker->state}",
+				'about'		=>$faker->realText(),
+				'registered'=>$faker->dateTimeBetween("-{$age} year","now")->format('Y-m-d'),
+	    	];
+    	}//for end here
+
+    	$response = $this->elasticsearch->bulk($params);
+    	dump($response);
+
+    }
+
+    //Data structure of Elastica client
+    public function ElasticaData(){
+
+    	$catType = $this->elasticaIndex->getType('cat');
+
+    	$mapping = new Elastica\Type\Mapping($catType,[
+    				'name'			=>array('type'=>'string'),
+    				'age' 			=>array('type'=>'long'),
+    				'gender'		=>array('type'=>'string'),
+    				'color'			=>array('type'=>'string'),
+    				'prettyKitty'	=>array('type'=>'boolean'),
+    				'homeTown'		=>array('type'=>'string'),
+    				'about'			=>array('type'=>'text'),
+    				'registered'	=>array('type'=>'date'),
+    	]);
+
+    	// $response = $mapping->send();
+    	// dump($response);
+
+    	//Let's store the data into Document
+	  	$catDocument = new Elastica\Document();
+
+    	$catDocument->setData([
+    		    	'name'		=>'Mossi',
+    				'age' 		=>2,
+    				'gender'	=>'male',
+    				'color'		=>'green',
+    				'prettyKitty'	=>true,
+    				'homeTown'	=>'India',
+    				'about'		=>'Very funny and brave Kitty and inteligence',
+    				'registered'=>date('Y-m-d'),
+    	]);
+
+    	$response = $catType->addDocument($catDocument);
+    	dump($response);
+
+    	$faker = Faker::create();
+
+    	$documents = [];
+
+    	for ($i=0; $i < 100; $i++) { 
+
+	    	$gender = $faker->randomElement(['male','female']);
+	    	$age = $faker->numberBetween(1,15);
+
+	    	$documents[] = (new Elastica\Document())->setData([
+	    		'name'		=>$faker->name($gender),
+				'age' 		=>$age,
+				'gender'	=>$gender,
+				'color'		=>$faker->safeColorName(),
+				'prettyKitty'=>$faker->boolean,
+				'homeTown'	=>"{$faker->city}, {$faker->state}",
+				'about'		=>$faker->realText(),
+				'registered'=>$faker->dateTimeBetween("-{$age} year","now")->format('Y-m-d'),
+	    	]);
+    	}//for end here
+
+    	$response = $catType->addDocuments($documents);
+    	dump($response);
+
+    }
+
 }
