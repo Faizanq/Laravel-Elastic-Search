@@ -231,6 +231,7 @@ class ClientController extends Controller
 
     }
 
+    //Simple Ealstic search queries
     public function ElasticSearchQuries(){
 
     	$params = [
@@ -304,7 +305,65 @@ class ClientController extends Controller
 
     }
 
+    //Simple Elastica Search Quries
     public function ElasticaQuries(){
+
+    		//Get the Type 
+    		$catType = $this->elasticaIndex->getType('cat');
+
+    		//Create Query Object
+    		$query = new Elastica\Query;
+
+    		//Create match query Object
+    		$match = new Elastica\Query\Match('name','MD');
+
+    		//Now set this match query into Query object
+    		$query->setQuery($match);
+
+    		//Now search the cat Document through CatType
+    		$response = $catType->search($query);
+    		dump($response);
+
+    		//Run query on about field
+
+    		$query = new Elastica\Query;
+
+    		//Create match query Object
+    		$match = new Elastica\Query\Match;
+    		$match->setField('about','Alice');
+    		$query->setSize(15);
+
+    		//Now set this match query into Query object
+    		$query->setQuery($match);
+
+    		//Now search the cat Document through CatType
+    		$response = $catType->search($query);
+    		dump($response);
+
+
+    		//Run Bool Query
+
+    		$query = new Elastica\Query;
+
+    		//Create match query Object
+    		$bool = new Elastica\Query\BoolQuery;
+    		$mustMatch = new Elastica\Query\Match('name','MD');
+
+    		$shouldOne = new Elastica\Query\Term(['prettyKitty'=>true]);
+    		$shouldTwo = new Elastica\Query\Term(['gender'=>'male']);
+
+    		$filterRange = new Elastica\Query\Range('registered',['gte'=>'2018-02-02']);
+
+    		$bool->addMust($mustMatch);
+    		$bool->addShould($shouldOne);
+    		$bool->addShould($shouldTwo);
+    		$bool->addFilter($filterRange);
+
+    		$query->setQuery($bool);
+
+    		//Now search the cat Document through CatType
+    		$response = $catType->search($query);
+    		dump($response);
 
     }
 
